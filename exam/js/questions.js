@@ -241,21 +241,23 @@ const ESFIMQuestions = (() => {
   }
 
   function handleMRChange(qId) {
-    const card = document.getElementById(`qcard-${qId}`);
-    if (!card) return;
-    const checkedBoxes = card.querySelectorAll('input[type="checkbox"]:checked');
+    const checkedBoxes = document.querySelectorAll(`input[type="checkbox"][name="q_${qId}"]:checked`);
+    const allBoxes = document.querySelectorAll(`input[type="checkbox"][name="q_${qId}"]`);
+    allBoxes.forEach(cb => {
+      const lbl = cb.closest('label');
+      if (lbl) lbl.classList.toggle('selected', cb.checked);
+    });
     const vals = Array.from(checkedBoxes).map(cb => cb.value);
     if (_onAnswerCb) _onAnswerCb(qId, vals);
   }
-
-  // selectEl is the <select> DOM element that was changed
   function handleMatchingChange(qId, selectEl) {
-    const card = document.getElementById(`qcard-${qId}`);
-    if (!card) return;
-    const rows = card.querySelectorAll('.matching-row');
+    const container = (selectEl && selectEl.closest('.matching-container')) ||
+                      document.getElementById(`matching-${qId}`) ||
+                      document.getElementById(`qcard-${qId}`);
+    if (!container) return;
+    const rows = container.querySelectorAll('.matching-row');
     const mapping = {};
     rows.forEach(row => {
-      // Read the left key from the data attribute set at render time
       const leftKey = (row.getAttribute('data-matching-left') || '').trim();
       const sel = row.querySelector('.matching-select');
       if (leftKey && sel && sel.value) {
